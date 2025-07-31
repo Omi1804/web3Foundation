@@ -4,6 +4,7 @@ import { useAccount, useBalance } from "wagmi";
 const ConnectWagmi = () => {
   const { address, isConnected } = useAccount();
   const { data, isLoading } = useBalance({ address: address });
+  
   const { data: arbBalace, isLoading: arbLoading } = useBalance({
     address: address,
     chainId: 42161,

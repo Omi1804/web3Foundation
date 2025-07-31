@@ -48,11 +48,9 @@ const ConnectEthers = () => {
         erc20Abi,
         provider
       );
-      console.log("🚀 ~ fetchBalance ~ contract:", contract);
       const balance = await contract.balanceOf(account);
       const formattedBalance = ethers.formatUnits(balance, 18);
       setTokenBalance(formattedBalance);
-      console.log("🚀 ~ fetchBalance ~ balance:", formattedBalance);
     } catch (error) {
       console.log(error);
     }

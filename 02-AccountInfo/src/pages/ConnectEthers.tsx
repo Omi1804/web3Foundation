@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import provider from "../utils/ethers";
 import { ethers, formatEther } from "ethers";
-import { ARB_RPC } from "../../../cofing";
+import { ARB_RPC } from "../../../config";
 
 const ConnectEthers = () => {
   const [account, setAccount] = useState<string | null>(null);
@@ -19,7 +19,6 @@ const ConnectEthers = () => {
   const handleConect = async () => {
     try {
       if (window.ethereum && provider) {
-        //for best practice explicitly request the user to connect to the provider
         await window.ethereum.request({ method: "eth_requestAccounts" });
 
         const signer = await provider.getSigner();
@@ -40,7 +39,6 @@ const ConnectEthers = () => {
     const balance = await provider.getBalance(account);
     const formattedBalance = formatEther(balance);
     setBalance(formattedBalance);
-    console.log("🚀 ~ findEthBalance ~ balance:", formattedBalance);
   };
 
   const findBalanceInArbitrum = async () => {
