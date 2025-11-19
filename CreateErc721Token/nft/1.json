@@ -1,0 +1,11 @@
+{
+  "name": "Om NFT",
+  "description": "A unique token deployed on Arbitrum Sepolia.",
+  "image": "https://avatars.githubusercontent.com/u/95313250?v=4",
+  "attributes": [
+    {
+      "trait_type": "Network",
+      "value": "Arbitrum Sepolia"
+    }
+  ]
+}
