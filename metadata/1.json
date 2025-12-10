@@ -1,0 +1,9 @@
+{
+  "name": "Healing Potion",
+  "description": "Restores +50 HP during battle.",
+  "image": "https://raw.githubusercontent.com/Omi1804/web3Foundation/refs/heads/main/images/potions.png",
+  "attributes": [
+    { "trait_type": "Category", "value": "Consumable" },
+    { "trait_type": "Health Boost", "value": 50 }
+  ]
+}

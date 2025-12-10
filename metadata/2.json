@@ -1,0 +1,9 @@
+{
+  "name": "Iron Sword",
+  "description": "A basic sword forged from iron.",
+  "image": "https://raw.githubusercontent.com/Omi1804/web3Foundation/refs/heads/main/images/sword.png",
+  "attributes": [
+    { "trait_type": "Category", "value": "Weapon" },
+    { "trait_type": "Attack Power", "value": 30 }
+  ]
+}

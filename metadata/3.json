@@ -1,0 +1,9 @@
+{
+  "name": "Sturdy Shield",
+  "description": "A shield that blocks enemy attacks.",
+  "image": "https://raw.githubusercontent.com/Omi1804/web3Foundation/refs/heads/main/images/shield.png",
+  "attributes": [
+    { "trait_type": "Category", "value": "Armor" },
+    { "trait_type": "Defense", "value": 45 }
+  ]
+}
