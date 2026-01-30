@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import TokenSelectModal from "./TokenSelectModal";
 import { useAccount, useChainId } from "wagmi";
 import { getQuotes } from "@/lib/quoter";
-import { createTrade } from "@/utils/untrackedTrade";
-import { executeTrade } from "@/utils/executeTrade";
 import { useTokenBalances } from "@/hook/useTokenBalances";
 import { findTokenBySymbol, getSwapTokens, SwapToken } from "@/lib/tokens";
 import { createRoute } from "@/utils/alphaRoute";
@@ -158,7 +156,6 @@ export default function SwapInterface() {
       toToken,
       Number(fromAmount),
     );
-    console.log("🚀 ~ handelSwap ~ txRes:", txRes);
   };
 
   const swapButtonDisabled =

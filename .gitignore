@@ -4,3 +4,5 @@ config.ts
 /artifacts
 /cache
 /typechain-types
+
+/09-uniswap_liquidity_pools
