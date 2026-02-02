@@ -59,6 +59,7 @@ export function getFullRangeTicks(tickSpacing: number) {
   };
 }
 
+// Currently this ony includes the ranges in whcih current price is centered (always included) and hence we always needs to add both tokens as liquidity, to make it such that only one token is needed we would need to adjust the range calculation and make it such that range can be set in which current price is not centered or parts of.
 export function getCenteredRangeTicks(
   currentTick: number,
   tickSpacing: number,

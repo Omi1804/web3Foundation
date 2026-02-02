@@ -16,13 +16,9 @@ import JSBI from "jsbi";
 import { useMemo, useState } from "react";
 import { approveToken } from "@/utils/approval";
 import { POSITION_MANAGER } from "@/constants/contracts";
-
-function toRaw(amount: string, decimals: number) {
-  if (!amount || Number(amount) <= 0) return JSBI.BigInt(0);
-  const [i, f = ""] = amount.split(".");
-  const frac = (f + "0".repeat(decimals)).slice(0, decimals);
-  return JSBI.BigInt(`${i}${frac}`.replace(/^0+/, "") || "0");
-}
+import { toRaw } from "@/utils/convertions";
+import { RangeSelector } from "@/components/RangeSelector";
+import { LiquidityInputs } from "@/components/LiquidityInputs";
 
 const CHAIN_ID_BASE = 8453;
 
@@ -208,12 +204,6 @@ const Page = () => {
       return;
     }
 
-    console.log("token0", sdkPool.token0.symbol, sdkPool.token0.address);
-    console.log("token1", sdkPool.token1.symbol, sdkPool.token1.address);
-    console.log("mint value", mintCall.value);
-    console.log("sqrtPriceX96", selectedPool?.sqrtPriceX96);
-    console.log("fee", selectedPool?.feeTier);
-
     if (chainId !== CHAIN_ID_BASE) {
       alert("Please switch to Base network");
       return;
@@ -279,172 +269,25 @@ const Page = () => {
           />
 
           <div className="flex items-center gap-4 flex-col">
-            {sdkPool && (
-              <>
-                <div className="border border-white/10 rounded-xl p-6 w-full max-w-2xl bg-gray-900/60 text-white space-y-4 mx-auto">
-                  <div className="flex flex-wrap items-center justify-between gap-4">
-                    <p className="text-sm font-semibold tracking-wide text-gray-300 uppercase">
-                      Deposit Preview
-                    </p>
-                    <div className="flex bg-white/10 rounded-full p-1 text-xs font-semibold">
-                      <button
-                        onClick={() => setDepositMode("token0")}
-                        className={`px-4 py-1 rounded-full transition ${
-                          depositMode === "token0"
-                            ? "bg-blue-500 text-white"
-                            : "text-gray-300 hover:text-white"
-                        }`}
-                      >
-                        Token0
-                      </button>
-                      <button
-                        onClick={() => setDepositMode("token1")}
-                        className={`px-4 py-1 rounded-full transition ${
-                          depositMode === "token1"
-                            ? "bg-blue-500 text-white"
-                            : "text-gray-300 hover:text-white"
-                        }`}
-                      >
-                        Token1
-                      </button>
-                      <button
-                        onClick={() => setDepositMode("both")}
-                        className={`px-4 py-1 rounded-full transition ${
-                          depositMode === "both"
-                            ? "bg-blue-500 text-white"
-                            : "text-gray-300 hover:text-white"
-                        }`}
-                      >
-                        Both
-                      </button>
-                    </div>
-                  </div>
+            <LiquidityInputs
+              sdkPool={sdkPool}
+              depositMode={depositMode}
+              setDepositMode={setDepositMode}
+              deposit0={deposit0}
+              setDeposit0={setDeposit0}
+              deposit1={deposit1}
+              setDeposit1={setDeposit1}
+              slippagePct={slippagePct}
+              setSlippagePct={setSlippagePct}
+              isSlippageValid={isSlippageValid}
+              deadlineMinutes={deadlineMinutes}
+              setDeadlineMinutes={setDeadlineMinutes}
+              isDeadlineValid={isDeadlineValid}
+              deadlineReadable={deadlineReadable}
+            />
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {(depositMode === "token0" || depositMode === "both") && (
-                      <label className="space-y-2 text-sm">
-                        <span className="text-gray-400">
-                          {sdkPool.token0.symbol} deposit
-                        </span>
-                        <div className="w-full bg-white/15 h-12 rounded-md border border-white/5 flex items-center justify-between px-4">
-                          <input
-                            type="number"
-                            step="any"
-                            value={deposit0}
-                            onChange={(e) => setDeposit0(e.target.value)}
-                            placeholder={sdkPool.token0.symbol}
-                            className="w-full h-full bg-transparent border-none outline-none text-white text-sm"
-                          />
-                          <span className="text-white text-xs font-semibold">
-                            {sdkPool.token0.symbol}
-                          </span>
-                        </div>
-                      </label>
-                    )}
-
-                    {(depositMode === "token1" || depositMode === "both") && (
-                      <label className="space-y-2 text-sm">
-                        <span className="text-gray-400">
-                          {sdkPool.token1.symbol} deposit
-                        </span>
-                        <div className="w-full bg-white/15 h-12 rounded-md border border-white/5 flex items-center justify-between px-4">
-                          <input
-                            type="number"
-                            step="any"
-                            value={deposit1}
-                            onChange={(e) => setDeposit1(e.target.value)}
-                            placeholder={sdkPool.token1.symbol}
-                            className="w-full h-full bg-transparent border-none outline-none text-white text-sm"
-                          />
-                          <span className="text-white text-xs font-semibold">
-                            {sdkPool.token1.symbol}
-                          </span>
-                        </div>
-                      </label>
-                    )}
-                  </div>
-
-                  <p className="text-xs text-gray-400">
-                    Enter token amounts to estimate required liquidity per
-                    asset.
-                  </p>
-                </div>
-
-                <div className="border border-white/10 rounded-xl p-6 w-full max-w-2xl bg-gray-900/60 text-white space-y-4 mx-auto">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold tracking-wide text-gray-300 uppercase">
-                      Transaction Settings
-                    </p>
-                    {deadlineReadable && (
-                      <span className="text-xs font-semibold text-gray-300">
-                        Expires around {deadlineReadable}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <label className="space-y-2 text-sm">
-                      <span className="text-gray-400">
-                        Slippage tolerance (%)
-                      </span>
-                      <div className="w-full bg-white/15 h-12 rounded-md border border-white/5 flex items-center justify-between px-4">
-                        <input
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          value={slippagePct}
-                          onChange={(event) =>
-                            setSlippagePct(event.target.value)
-                          }
-                          placeholder="0.5"
-                          className="w-full h-full bg-transparent border-none outline-none text-white text-sm"
-                        />
-                        <span className="text-white text-xs font-semibold">
-                          %
-                        </span>
-                      </div>
-                      {!isSlippageValid && (
-                        <p className="text-xs text-red-300">
-                          Enter a value greater than 0 and below 100.
-                        </p>
-                      )}
-                    </label>
-
-                    <label className="space-y-2 text-sm">
-                      <span className="text-gray-400">Deadline (minutes)</span>
-                      <div className="w-full bg-white/15 h-12 rounded-md border border-white/5 flex items-center justify-between px-4">
-                        <input
-                          type="number"
-                          min="1"
-                          step="1"
-                          value={deadlineMinutes}
-                          onChange={(event) =>
-                            setDeadlineMinutes(event.target.value)
-                          }
-                          placeholder="20"
-                          className="w-full h-full bg-transparent border-none outline-none text-white text-sm"
-                        />
-                        <span className="text-white text-xs font-semibold">
-                          min
-                        </span>
-                      </div>
-                      {!isDeadlineValid && (
-                        <p className="text-xs text-red-300">
-                          Deadline must be a positive number of minutes.
-                        </p>
-                      )}
-                    </label>
-                  </div>
-
-                  <p className="text-xs text-gray-400">
-                    Slippage tolerance adjusts the minimum token amounts, and
-                    the deadline controls when the transaction expires.
-                  </p>
-                </div>
-              </>
-            )}
             {/* Range */}
-            <div className="border-white/10 border rounded-xl p-6 max-w-2xl w-full bg-gray-900/60 text-white space-y-4">
+            <div className="border-white/10 border rounded-xl p-4 max-w-2xl w-full bg-gray-900/60 text-white space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-gray-400">
@@ -461,38 +304,13 @@ const Page = () => {
                 )}
               </div>
 
-              <div className="flex items-center justify-between gap-4 flex-wrap">
-                <div className="w-full bg-white/15 h-12 rounded-md border border-white/5 flex items-center justify-between px-4 flex-1 min-w-55">
-                  <input
-                    type="number"
-                    step="any"
-                    value={draftPct}
-                    onChange={(e) => setDraftPct(Number(e.target.value))}
-                    placeholder="Choose concentrated liquidity percentage"
-                    className="w-full h-full bg-transparent border-none outline-none text-white text-sm"
-                  />
-                  <p className="text-white text-sm font-semibold">%</p>
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  <button
-                    onClick={applyConcentrated}
-                    disabled={!isDraftPctValid}
-                    className={`w-36 h-12 rounded-md text-sm font-semibold outline-none transition ${
-                      isDraftPctValid
-                        ? "bg-blue-600 hover:bg-blue-500"
-                        : "bg-blue-600/30 cursor-not-allowed"
-                    }`}
-                  >
-                    Apply Concentrated
-                  </button>
-                  <button
-                    onClick={useFullRange}
-                    className="bg-gray-500/70 w-32 h-12 rounded-md text-sm font-semibold outline-none hover:bg-gray-500/90 transition"
-                  >
-                    Full Range
-                  </button>
-                </div>
-              </div>
+              <RangeSelector
+                draftPct={draftPct}
+                setDraftPct={setDraftPct}
+                applyConcentrated={applyConcentrated}
+                isDraftPctValid={isDraftPctValid}
+                useFullRange={useFullRange}
+              />
 
               <div className="text-xs text-gray-300 space-y-1">
                 <p>

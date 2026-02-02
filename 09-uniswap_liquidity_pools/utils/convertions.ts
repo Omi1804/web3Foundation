@@ -24,3 +24,10 @@ function countDecimals(x: number) {
   }
   return x.toString().split(".")[1].length || 0;
 }
+
+export function toRaw(amount: string, decimals: number) {
+  if (!amount || Number(amount) <= 0) return JSBI.BigInt(0);
+  const [i, f = ""] = amount.split(".");
+  const frac = (f + "0".repeat(decimals)).slice(0, decimals);
+  return JSBI.BigInt(`${i}${frac}`.replace(/^0+/, "") || "0");
+}
